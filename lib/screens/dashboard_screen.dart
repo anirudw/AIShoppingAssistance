@@ -27,6 +27,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   double _shutterScale = 1.0;
   bool _showZoomSlider = false;
   double _reticleSize = 200.0;
+  bool _isSliderPersistent = false;
+  Offset _dragStartPos = Offset.zero;
+  double _reticleSizeAtStart = 200.0;
+  double _zoomButtonScale = 1.0;
 
   // Shopping Cart State
   final List<CartItemModel> _cartItems = [];
@@ -418,8 +422,36 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
               ),
 
-
-
+              // Zoom Level HUD Overlay (Glassmorphic center badge)
+              Center(
+                child: IgnorePointer(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity: _showZoomSlider ? 1.0 : 0.0,
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        '${(240.0 / _reticleSize).toStringAsFixed(1)}x',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
               // Zoom Button & Slider
               Positioned(
@@ -428,59 +460,115 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_showZoomSlider)
-                      Container(
-                        width: 140,
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: _showZoomSlider ? 1.0 : 0.0,
+                      curve: Curves.easeInOut,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        width: _showZoomSlider ? 140 : 0,
                         height: 32,
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        margin: EdgeInsets.only(right: _showZoomSlider ? 8 : 0),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: const Color(0xFF23C8D9),
-                            inactiveTrackColor: Colors.white24,
-                            thumbColor: Colors.white,
-                            trackHeight: 2,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-                          ),
-                          child: Slider(
-                            value: _reticleSize,
-                            min: 100.0,
-                            max: 240.0,
-                            onChanged: (val) {
-                              setState(() {
-                                _reticleSize = val;
-                              });
-                            },
+                        clipBehavior: Clip.antiAlias,
+                        child: OverflowBox(
+                          minWidth: 0,
+                          maxWidth: 140,
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            width: 140,
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: const Color(0xFF23C8D9),
+                                inactiveTrackColor: Colors.white24,
+                                thumbColor: Colors.white,
+                                trackHeight: 2,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                              ),
+                              child: Slider(
+                                value: _reticleSize,
+                                min: 100.0,
+                                max: 240.0,
+                                onChanged: (val) {
+                                  setState(() {
+                                    _reticleSize = val;
+                                  });
+                                },
+                              ),
+                            ),
                           ),
                         ),
                       ),
+                    ),
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          _showZoomSlider = !_showZoomSlider;
+                          _isSliderPersistent = !_isSliderPersistent;
+                          _showZoomSlider = _isSliderPersistent;
+                          _zoomButtonScale = 1.15;
+                        });
+                        Future.delayed(const Duration(milliseconds: 150), () {
+                          if (mounted) {
+                            setState(() {
+                              _zoomButtonScale = 1.0;
+                            });
+                          }
                         });
                       },
-                      onLongPress: () {
+                      onLongPressStart: (details) {
                         setState(() {
                           _showZoomSlider = true;
+                          _zoomButtonScale = 1.25;
+                          _dragStartPos = details.globalPosition;
+                          _reticleSizeAtStart = _reticleSize;
                         });
                       },
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black.withOpacity(0.6),
-                        ),
-                        child: const Icon(
-                          Icons.zoom_in,
-                          color: Colors.white,
-                          size: 18,
+                      onLongPressMoveUpdate: (details) {
+                        final double dx = details.globalPosition.dx - _dragStartPos.dx;
+                        setState(() {
+                          _reticleSize = (_reticleSizeAtStart + dx).clamp(100.0, 240.0);
+                        });
+                      },
+                      onLongPressEnd: (details) {
+                        setState(() {
+                          _zoomButtonScale = 1.0;
+                          if (!_isSliderPersistent) {
+                            _showZoomSlider = false;
+                          }
+                        });
+                      },
+                      child: AnimatedScale(
+                        scale: _zoomButtonScale,
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeOutBack,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _showZoomSlider 
+                                ? const Color(0xFF23C8D9) 
+                                : Colors.black.withOpacity(0.6),
+                            boxShadow: _showZoomSlider 
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(0xFF23C8D9).withOpacity(0.4),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            _showZoomSlider ? Icons.zoom_out : Icons.zoom_in,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
