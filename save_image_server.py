@@ -58,27 +58,64 @@ class SaveImageHandler(BaseHTTPRequestHandler):
         except Exception as e:
             print(f"[Server] Error saving file: {e}")
 
-        # Fetch embedding from Hugging Face API
+        # Fetch embedding from Hugging Face Space or Inference API
         try:
             env = load_env()
-            hf_token = env.get('HF_API_TOKEN', '')
-            if not hf_token:
-                raise Exception("HF_API_TOKEN is not set in .env file")
-
-            model_url = 'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32'
-            req = urllib.request.Request(
-                model_url,
-                data=post_data,
-                headers={
-                    'Authorization': f'Bearer {hf_token}',
-                    'Content-Type': 'application/octet-stream',
-                },
-                method='POST'
-            )
+            hf_space_url = env.get('HF_SPACE_URL', '')
+            
+            if hf_space_url:
+                # Query custom Hugging Face Space (FastAPI endpoint)
+                print(f"[Server] Querying custom Hugging Face Space: {hf_space_url}")
+                boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+                body = [
+                    f'--{boundary}'.encode('utf-8'),
+                    'Content-Disposition: form-data; name="file"; filename="image.jpg"'.encode('utf-8'),
+                    'Content-Type: image/jpeg'.encode('utf-8'),
+                    b'',
+                    post_data,
+                    f'--{boundary}--'.encode('utf-8'),
+                    b''
+                ]
+                payload = b'\r\n'.join(body)
+                
+                req = urllib.request.Request(
+                    hf_space_url,
+                    data=payload,
+                    headers={
+                        'Content-Type': f'multipart/form-data; boundary={boundary}',
+                        'Content-Length': str(len(payload))
+                    },
+                    method='POST'
+                )
+            else:
+                # Query Serverless Inference API (Fallback)
+                hf_token = env.get('HF_API_TOKEN', '')
+                if not hf_token:
+                    raise Exception("Neither HF_SPACE_URL nor HF_API_TOKEN is set in .env file")
+                
+                model_url = 'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32'
+                print(f"[Server] Querying Hugging Face Serverless API: {model_url}")
+                req = urllib.request.Request(
+                    model_url,
+                    data=post_data,
+                    headers={
+                        'Authorization': f'Bearer {hf_token}',
+                        'Content-Type': 'application/octet-stream',
+                    },
+                    method='POST'
+                )
             
             with urllib.request.urlopen(req) as response:
                 result = response.read().decode('utf-8')
-                embedding = json.loads(result)
+                res_json = json.loads(result)
+                
+                # FastAPI returns {"status": "success", "embedding": [...]}
+                # Serverless Inference API returns raw float array [...] directly
+                if isinstance(res_json, dict) and "embedding" in res_json:
+                    embedding = res_json["embedding"]
+                else:
+                    embedding = res_json
+                
                 print(f"[Server] Successfully generated CLIP embedding vector of length {len(embedding)}")
                 self.wfile.write(json.dumps({
                     "status": "success",
