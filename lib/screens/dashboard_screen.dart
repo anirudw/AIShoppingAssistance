@@ -176,7 +176,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF131313),
+      backgroundColor: const Color(0xFF1A1A1A),
       appBar: _buildAppBar(),
       body: Stack(
         children: [

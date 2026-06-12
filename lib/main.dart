@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
       title: 'Chef RAG Dashboard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF131313),
+        scaffoldBackgroundColor: const Color(0xFF1A1A1A),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF00E0FF),
           surface: Color(0xFF131313),
