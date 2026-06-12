@@ -513,18 +513,28 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const Text(
+                'My Shopping Cart',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'My Shopping Cart',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
+                  if (_cartItems.isNotEmpty) ...[
+                    Text(
+                      'Total ₹${_totalPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF23C8D9),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
+                    const SizedBox(width: 8),
+                  ],
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
@@ -542,15 +552,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                 ],
               ),
-              if (_cartItems.isNotEmpty)
-                Text(
-                  'Total ₹${_totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF23C8D9),
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 16),
