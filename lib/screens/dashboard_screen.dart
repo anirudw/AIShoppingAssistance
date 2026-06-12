@@ -385,36 +385,33 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                 ),
               
-              // Scanning Reticle Overlay
+              // Scanning Reticle Overlay (Rounded Cutout Corners)
               Center(
-                child: Container(
+                child: SizedBox(
                   width: 200,
                   height: 200,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Stack(
-                    children: [
-                      _buildReticleCorner(top: 0, left: 0, borderRight: false, borderBottom: false),
-                      _buildReticleCorner(top: 0, right: 0, borderLeft: false, borderBottom: false),
-                      _buildReticleCorner(bottom: 0, left: 0, borderRight: false, borderTop: false),
-                      _buildReticleCorner(bottom: 0, right: 0, borderLeft: false, borderTop: false),
-                      if (_isSearchingImage)
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                const Color(0xFF23C8D9).withOpacity(0.2),
-                                Colors.transparent,
-                              ],
+                  child: CustomPaint(
+                    painter: ReticlePainter(
+                      color: const Color(0xFF23C8D9),
+                      strokeWidth: 3.5,
+                      borderRadius: 16,
+                      arcLength: 20,
+                    ),
+                    child: _isSearchingImage
+                        ? Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  const Color(0xFF23C8D9).withOpacity(0.2),
+                                  Colors.transparent,
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
-                    ],
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -474,26 +471,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildReticleCorner({double? top, double? bottom, double? left, double? right, bool borderRight = true, bool borderBottom = true, bool borderLeft = true, bool borderTop = true}) {
-    return Positioned(
-      top: top,
-      bottom: bottom,
-      left: left,
-      right: right,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          border: Border(
-            top: borderTop ? const BorderSide(color: Color(0xFF23C8D9), width: 3) : BorderSide.none,
-            bottom: borderBottom ? const BorderSide(color: Color(0xFF23C8D9), width: 3) : BorderSide.none,
-            left: borderLeft ? const BorderSide(color: Color(0xFF23C8D9), width: 3) : BorderSide.none,
-            right: borderRight ? const BorderSide(color: Color(0xFF23C8D9), width: 3) : BorderSide.none,
-          ),
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildShoppingZone() {
     return Container(
@@ -916,4 +894,67 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       ),
     );
   }
+}
+
+class ReticlePainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double borderRadius;
+  final double arcLength;
+
+  ReticlePainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.borderRadius,
+    required this.arcLength,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final double w = size.width;
+    final double h = size.height;
+    final double r = borderRadius;
+    final double len = arcLength;
+
+    // Top-Left
+    final pathTL = Path()
+      ..moveTo(0, r + len)
+      ..lineTo(0, r)
+      ..arcToPoint(Offset(r, 0), radius: Radius.circular(r))
+      ..lineTo(r + len, 0);
+    canvas.drawPath(pathTL, paint);
+
+    // Top-Right
+    final pathTR = Path()
+      ..moveTo(w - (r + len), 0)
+      ..lineTo(w - r, 0)
+      ..arcToPoint(Offset(w, r), radius: Radius.circular(r))
+      ..lineTo(w, r + len);
+    canvas.drawPath(pathTR, paint);
+
+    // Bottom-Right
+    final pathBR = Path()
+      ..moveTo(w, h - (r + len))
+      ..lineTo(w, h - r)
+      ..arcToPoint(Offset(w - r, h), radius: Radius.circular(r))
+      ..lineTo(w - (r + len), h);
+    canvas.drawPath(pathBR, paint);
+
+    // Bottom-Left
+    final pathBL = Path()
+      ..moveTo(r + len, h)
+      ..lineTo(r, h)
+      ..arcToPoint(Offset(0, h - r), radius: Radius.circular(r))
+      ..lineTo(0, h - (r + len));
+    canvas.drawPath(pathBL, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
