@@ -25,6 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   bool _isSearchingImage = false;
   bool _isLoadingRag = false;
   double _shutterScale = 1.0;
+  bool _showZoomSlider = false;
+  double _reticleSize = 200.0;
 
   // Shopping Cart State
   final List<CartItemModel> _cartItems = [];
@@ -388,8 +390,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               // Scanning Reticle Overlay (Rounded Cutout Corners)
               Center(
                 child: SizedBox(
-                  width: 200,
-                  height: 200,
+                  width: _reticleSize,
+                  height: _reticleSize,
                   child: CustomPaint(
                     painter: ReticlePainter(
                       color: const Color(0xFF23C8D9),
@@ -419,22 +421,70 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
 
 
-              // Zoom Button
+              // Zoom Button & Slider
               Positioned(
                 bottom: 12,
                 right: 12,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.6),
-                  ),
-                  child: const Icon(
-                    Icons.zoom_in,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_showZoomSlider)
+                      Container(
+                        width: 140,
+                        height: 32,
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: const Color(0xFF23C8D9),
+                            inactiveTrackColor: Colors.white24,
+                            thumbColor: Colors.white,
+                            trackHeight: 2,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                          ),
+                          child: Slider(
+                            value: _reticleSize,
+                            min: 100.0,
+                            max: 240.0,
+                            onChanged: (val) {
+                              setState(() {
+                                _reticleSize = val;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showZoomSlider = !_showZoomSlider;
+                        });
+                      },
+                      onLongPress: () {
+                        setState(() {
+                          _showZoomSlider = true;
+                        });
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black.withOpacity(0.6),
+                        ),
+                        child: const Icon(
+                          Icons.zoom_in,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
