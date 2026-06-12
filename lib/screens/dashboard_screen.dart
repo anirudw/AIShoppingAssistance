@@ -31,6 +31,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   bool _isSliderPersistent = false;
   Offset _dragStartPos = Offset.zero;
   double _zoomButtonScale = 1.0;
+  bool _isHardwareZoomSupported = false;
+  double _minHardwareZoom = 1.0;
+  double _maxHardwareZoom = 1.0;
 
   // Shopping Cart State
   final List<CartItemModel> _cartItems = [];
@@ -62,21 +65,43 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     
     try {
       await _cameraController!.initialize();
-      if (mounted) setState(() => _isCameraInitialized = true);
+      if (mounted) {
+        setState(() => _isCameraInitialized = true);
+        _checkHardwareZoomSupport();
+      }
     } catch (e) {
       debugPrint("Camera initialization failed: $e");
     }
   }
 
-  Future<void> _updateHardwareZoom(double level) async {
+  Future<void> _checkHardwareZoomSupport() async {
     if (_cameraController != null && _cameraController!.value.isInitialized) {
       try {
-        final maxZoom = await _cameraController!.getMaxZoomLevel();
         final minZoom = await _cameraController!.getMinZoomLevel();
-        final targetZoom = minZoom + (level - 1.0) * ((maxZoom - minZoom) / 2.0);
-        await _cameraController!.setZoomLevel(targetZoom.clamp(minZoom, maxZoom));
+        final maxZoom = await _cameraController!.getMaxZoomLevel();
+        if (maxZoom > minZoom) {
+          if (mounted) {
+            setState(() {
+              _minHardwareZoom = minZoom;
+              _maxHardwareZoom = maxZoom;
+              _isHardwareZoomSupported = true;
+            });
+          }
+        }
       } catch (e) {
-        debugPrint("Hardware zoom not supported or failed: $e");
+        debugPrint("Hardware zoom not supported: $e");
+      }
+    }
+  }
+
+  Future<void> _updateHardwareZoom(double level) async {
+    if (_isHardwareZoomSupported && _cameraController != null && _cameraController!.value.isInitialized) {
+      try {
+        final targetZoom = _minHardwareZoom + (level - 1.0) * ((_maxHardwareZoom - _minHardwareZoom) / 2.0);
+        await _cameraController!.setZoomLevel(targetZoom.clamp(_minHardwareZoom, _maxHardwareZoom));
+      } catch (e) {
+        _isHardwareZoomSupported = false;
+        debugPrint("Hardware zoom failed, disabling: $e");
       }
     }
   }
