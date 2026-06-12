@@ -191,12 +191,14 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
           ),
           
           // Floating Assistant Bar
+          /*
           Positioned(
             bottom: 96,
             left: 20,
             right: 20,
             child: _buildAssistantBar(),
           ),
+          */
           
           // Bottom Navigation Bar
           Positioned(
@@ -397,9 +399,10 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
             },
           ),
 
-          const SizedBox(height: 24),
+          // const SizedBox(height: 24),
 
           // AI Insight Chip
+          /*
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -447,6 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
               ],
             ),
           ),
+          */
         ],
       ),
     );
