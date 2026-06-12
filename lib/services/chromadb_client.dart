@@ -95,7 +95,7 @@ class ChromaDbClient {
     return "This is a simulated response for: $prompt. To unlock Neapolitan precision, add Basil and Mozzarella!";
   }
 
-  /// Method to search an item by photo using Hugging Face Serverless Inference API
+  /// Method to search an item by photo using local helper server as proxy
   Future<CartItemModel?> searchItemByPhoto(XFile photo) async {
     debugPrint('--- CHROMA SIMILARITY SEARCH START ---');
     debugPrint('Captured photo path: ${photo.path}');
@@ -109,36 +109,28 @@ class ChromaDbClient {
     List<double> queryEmbedding;
 
     try {
-      debugPrint('Generating CLIP embedding via Hugging Face Serverless API...');
+      debugPrint('Uploading image to local saver server & generating CLIP embedding...');
       final bytes = await photo.readAsBytes();
       
-      // Save image permanently to the local project directory
-      await _uploadImageToLocalServer(bytes);
-
-      if (_hfToken.isEmpty) {
-        throw Exception('HF_API_TOKEN is not configured in .env');
-      }
-
-      const modelUrl = 'https://api-inference.huggingface.co/pipeline/feature-extraction/openai/clip-vit-base-patch32';
-      
-      final hfResponse = await http.post(
-        Uri.parse(modelUrl),
-        headers: {
-          'Authorization': 'Bearer $_hfToken',
-          'Content-Type': 'application/octet-stream',
-        },
+      final response = await http.post(
+        Uri.parse('http://localhost:5001/'),
+        headers: {'Content-Type': 'image/jpeg'},
         body: bytes,
       );
 
-      if (hfResponse.statusCode == 200) {
-        final List<dynamic> jsonResponse = jsonDecode(hfResponse.body);
-        queryEmbedding = jsonResponse.cast<double>();
-        debugPrint('Successfully generated CLIP embedding of dimension: ${queryEmbedding.length}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'success') {
+          queryEmbedding = List<double>.from(data['embedding']);
+          debugPrint('Successfully received CLIP embedding from local helper server (dimension: ${queryEmbedding.length})');
+        } else {
+          throw Exception('Local helper server error: ${data['message']}');
+        }
       } else {
-        throw Exception('Hugging Face Inference API error: ${hfResponse.statusCode} - ${hfResponse.body}');
+        throw Exception('Failed to connect to local helper server: Status ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error generating CLIP embedding from Hugging Face: $e');
+      debugPrint('Error generating CLIP embedding: $e. Falling back to mock.');
       queryEmbedding = _generateMockEmbedding();
     }
 

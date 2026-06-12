@@ -1,6 +1,22 @@
 import os
 import time
+import urllib.request
+import urllib.error
+import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+def load_env():
+    env = {}
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    if '=' in line:
+                        key, val = line.split('=', 1)
+                        env[key.strip()] = val.strip()
+    return env
 
 class SaveImageHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -39,10 +55,41 @@ class SaveImageHandler(BaseHTTPRequestHandler):
             with open(filepath, 'wb') as f:
                 f.write(post_data)
             print(f"[Server] Saved captured image to: {filepath}")
-            self.wfile.write(b'{"status": "success"}')
         except Exception as e:
             print(f"[Server] Error saving file: {e}")
-            self.wfile.write(f'{{"status": "error", "message": "{str(e)}"}}'.encode('utf-8'))
+
+        # Fetch embedding from Hugging Face API
+        try:
+            env = load_env()
+            hf_token = env.get('HF_API_TOKEN', '')
+            if not hf_token:
+                raise Exception("HF_API_TOKEN is not set in .env file")
+
+            model_url = 'https://api-inference.huggingface.co/pipeline/feature-extraction/openai/clip-vit-base-patch32'
+            req = urllib.request.Request(
+                model_url,
+                data=post_data,
+                headers={
+                    'Authorization': f'Bearer {hf_token}',
+                    'Content-Type': 'application/octet-stream',
+                },
+                method='POST'
+            )
+            
+            with urllib.request.urlopen(req) as response:
+                result = response.read().decode('utf-8')
+                embedding = json.loads(result)
+                print(f"[Server] Successfully generated CLIP embedding vector of length {len(embedding)}")
+                self.wfile.write(json.dumps({
+                    "status": "success",
+                    "embedding": embedding
+                }).encode('utf-8'))
+        except Exception as e:
+            print(f"[Server] Error generating embedding: {e}")
+            self.wfile.write(json.dumps({
+                "status": "error",
+                "message": str(e)
+            }).encode('utf-8'))
 
 def run_server():
     server_address = ('', 5001)
