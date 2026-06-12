@@ -448,33 +448,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
               ),
 
-              // Live Status
-              Positioned(
-                bottom: 12,
-                left: 12,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF22C55E),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'Live ● Detecting Products',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
               // Zoom Button
               Positioned(
