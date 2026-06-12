@@ -241,10 +241,25 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
           onPressed: _checkDbStatus,
           child: const Text('DB STATUS', style: TextStyle(color: Color(0xFF00E0FF))),
         ),
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Color(0xFF929090)),
-          onPressed: () {},
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF00E0FF).withValues(alpha: 0.1),
+            border: Border.all(color: const Color(0xFF00E0FF).withValues(alpha: 0.3)),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: Color(0xFF00E0FF),
+              size: 20,
+            ),
+            onPressed: () {},
+          ),
         ),
+        const SizedBox(width: 16),
       ],
     );
   }
