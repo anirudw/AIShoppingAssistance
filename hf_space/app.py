@@ -55,10 +55,10 @@ async def get_embedding(file: UploadFile = File(...)):
         # Process and run inference
         inputs = processor(images=image, return_tensors="pt").to(device)
         with torch.no_grad():
-            outputs = model.get_image_features(**inputs)
+            outputs = model(**inputs)
             
         # Convert embedding tensor to list
-        embedding = outputs[0].cpu().numpy().tolist()
+        embedding = outputs.image_embeds[0].cpu().numpy().tolist()
         return {"status": "success", "embedding": embedding}
     except Exception as e:
         return {"status": "error", "message": str(e)}
