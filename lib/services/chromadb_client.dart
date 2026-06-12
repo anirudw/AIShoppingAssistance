@@ -1,14 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:js_interop';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:camera/camera.dart';
 import '../models/cart_item_model.dart';
-
-@JS()
-external JSPromise<JSArray<JSNumber>> getClipEmbedding(JSString base64DataUrl);
 
 class ChromaDbClient {
   static const String _baseUrl = 'https://api.trychroma.com/api/v1'; // Update to the specific cloud endpoint if different
@@ -16,11 +12,16 @@ class ChromaDbClient {
   final String _database = 'QLESS';
 
   late final String _apiKey;
+  late final String _hfToken;
 
   ChromaDbClient() {
     _apiKey = dotenv.env['CHROMA_API_KEY'] ?? '';
     if (_apiKey.isEmpty) {
       debugPrint('Warning: CHROMA_API_KEY is not set in .env');
+    }
+    _hfToken = dotenv.env['HF_API_TOKEN'] ?? '';
+    if (_hfToken.isEmpty) {
+      debugPrint('Warning: HF_API_TOKEN is not set in .env');
     }
   }
 
@@ -94,7 +95,7 @@ class ChromaDbClient {
     return "This is a simulated response for: $prompt. To unlock Neapolitan precision, add Basil and Mozzarella!";
   }
 
-  /// Method to search an item by photo using CLIP-ViT-B-32 ONNX model on Web
+  /// Method to search an item by photo using Hugging Face Serverless Inference API
   Future<CartItemModel?> searchItemByPhoto(XFile photo) async {
     debugPrint('--- CHROMA SIMILARITY SEARCH START ---');
     debugPrint('Captured photo path: ${photo.path}');
@@ -107,30 +108,37 @@ class ChromaDbClient {
     
     List<double> queryEmbedding;
 
-    if (kIsWeb) {
-      try {
-        debugPrint('Generating CLIP embedding on-device (web)...');
-        final bytes = await photo.readAsBytes();
-        
-        // Save image permanently to the local project directory
-        await _uploadImageToLocalServer(bytes);
+    try {
+      debugPrint('Generating CLIP embedding via Hugging Face Serverless API...');
+      final bytes = await photo.readAsBytes();
+      
+      // Save image permanently to the local project directory
+      await _uploadImageToLocalServer(bytes);
 
-        final base64Image = base64Encode(bytes);
-        final mimeType = _getMimeType(photo.name);
-        final dataUrl = 'data:$mimeType;base64,$base64Image';
-
-        // Call JS function and await promise using dart:js_interop
-        final JSArray<JSNumber> response = await getClipEmbedding(dataUrl.toJS).toDart;
-        queryEmbedding = response.toDart.map((jsNum) => jsNum.toDartDouble).toList();
-        
-        debugPrint('Successfully generated CLIP embedding of dimension: ${queryEmbedding.length}');
-        debugPrint('Embedding sample: ${queryEmbedding.sublist(0, min(5, queryEmbedding.length))}...');
-      } catch (e) {
-        debugPrint('Error generating CLIP embedding on web, falling back to mock: $e');
-        queryEmbedding = _generateMockEmbedding();
+      if (_hfToken.isEmpty) {
+        throw Exception('HF_API_TOKEN is not configured in .env');
       }
-    } else {
-      debugPrint('Not on web environment, using mock embedding...');
+
+      const modelUrl = 'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/clip-ViT-B-32';
+      
+      final hfResponse = await http.post(
+        Uri.parse(modelUrl),
+        headers: {
+          'Authorization': 'Bearer $_hfToken',
+          'Content-Type': 'application/octet-stream',
+        },
+        body: bytes,
+      );
+
+      if (hfResponse.statusCode == 200) {
+        final List<dynamic> jsonResponse = jsonDecode(hfResponse.body);
+        queryEmbedding = jsonResponse.cast<double>();
+        debugPrint('Successfully generated CLIP embedding of dimension: ${queryEmbedding.length}');
+      } else {
+        throw Exception('Hugging Face Inference API error: ${hfResponse.statusCode} - ${hfResponse.body}');
+      }
+    } catch (e) {
+      debugPrint('Error generating CLIP embedding from Hugging Face: $e');
       queryEmbedding = _generateMockEmbedding();
     }
 
