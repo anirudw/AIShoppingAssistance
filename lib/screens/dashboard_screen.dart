@@ -514,7 +514,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'My Shopping Cart',
+                'My Cart',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
