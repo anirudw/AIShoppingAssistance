@@ -65,7 +65,7 @@ class SaveImageHandler(BaseHTTPRequestHandler):
             if not hf_token:
                 raise Exception("HF_API_TOKEN is not set in .env file")
 
-            model_url = 'https://api-inference.huggingface.co/pipeline/feature-extraction/openai/clip-vit-base-patch32'
+            model_url = 'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32'
             req = urllib.request.Request(
                 model_url,
                 data=post_data,
