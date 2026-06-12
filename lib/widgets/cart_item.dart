@@ -86,7 +86,7 @@ class CartItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFF0E0E0E), // surface-container-lowest
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF3B4B35).withOpacity(0.3)),
+                  border: Border.all(color: const Color(0xFF3B4B35).withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
