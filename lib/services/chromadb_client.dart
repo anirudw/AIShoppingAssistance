@@ -162,16 +162,33 @@ class ChromaDbClient {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final metadatas = data['metadatas'] as List;
+        final distances = data['distances'] as List;
         
         if (metadatas.isNotEmpty && metadatas[0].isNotEmpty) {
           final itemMeta = metadatas[0][0];
-          final productName = itemMeta['product_name'] ?? 'Unknown Item';
-          debugPrint('Matched Product Name: $productName');
+          final rawProductName = itemMeta['product_name'] ?? 'Unknown Item';
+          // Strip trailing index numbers (e.g. -2, -3) to allow proper grouping of identical products
+          final productName = rawProductName.toString().replaceAll(RegExp(r'-\d+$'), '');
+          final double distance = (distances.isNotEmpty && distances[0].isNotEmpty)
+              ? (distances[0][0] as num).toDouble()
+              : 2.0;
+
+          debugPrint('Matched Product Name: $productName, Distance: $distance');
+
+          // Threshold check: L2 distance for normalized vectors ranges from 0 to 4.
+          // A distance of 1.0 corresponds to a cosine similarity of 0.5.
+          const double threshold = 1.0;
+          if (distance > threshold) {
+            debugPrint('Match rejected: Distance $distance exceeds threshold $threshold');
+            debugPrint('--- CHROMA SIMILARITY SEARCH END (NO CONFIDENT MATCH) ---');
+            return null;
+          }
+          
           debugPrint('--- CHROMA SIMILARITY SEARCH END (SUCCESS) ---');
           
           return CartItemModel(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
-            name: productName.toString().replaceAll('-', ' ').toUpperCase(),
+            name: productName.replaceAll('-', ' ').toUpperCase(),
             details: "1 Item • \$2.99", // Mocking price since it isn't in DB
             imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop",
             price: 2.99,

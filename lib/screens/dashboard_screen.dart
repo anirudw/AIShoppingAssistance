@@ -140,7 +140,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
       if (item != null && mounted) {
         setState(() {
-          _cartItems.add(item);
+          final existingIndex = _cartItems.indexWhere((element) => element.name == item.name);
+          if (existingIndex != -1) {
+            _cartItems[existingIndex].quantity += 1;
+          } else {
+            _cartItems.add(item);
+          }
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -769,7 +774,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                           child: CartItem(
                             imageUrl: item.imageUrl,
                             name: item.name,
-                            details: item.details,
+                            details: "${item.quantity} ${item.quantity == 1 ? 'Item' : 'Items'} • \$${(item.price * item.quantity).toStringAsFixed(2)}",
                             quantity: item.quantity,
                             onIncrement: () => _incrementQuantity(index),
                             onDecrement: () => _decrementQuantity(index),
@@ -780,7 +785,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     ),
                   ],
 
-                  _buildAssistantSection(),
+                  // Hide Chef AI assistant for now
+                  // _buildAssistantSection(),
                 ],
               ),
             ),

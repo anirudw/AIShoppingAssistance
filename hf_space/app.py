@@ -2,12 +2,14 @@ import os
 import io
 import time
 import datetime
-import torch
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
-from transformers import CLIPProcessor, CLIPVisionModelWithProjection
+from transformers import CLIPProcessor
 from PIL import Image
+from huggingface_hub import hf_hub_download
+import onnxruntime as ort
+import numpy as np
 
 app = FastAPI()
 
@@ -20,13 +22,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model and processor on startup
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model_id = "openai/clip-vit-base-patch32"
+# Load model and processor on startup using ONNX Runtime
+model_id = "Xenova/clip-vit-base-patch32"
+device = "cpu"
 
-print(f"Loading CLIP model '{model_id}' on device: {device}...")
+print(f"Loading CLIP processor '{model_id}'...")
 processor = CLIPProcessor.from_pretrained(model_id)
-model = CLIPVisionModelWithProjection.from_pretrained(model_id).to(device)
+
+print(f"Downloading ONNX model '{model_id}'...")
+model_file = hf_hub_download(repo_id=model_id, filename="onnx/vision_model.onnx")
+
+print("Initializing ONNX Runtime session...")
+session = ort.InferenceSession(model_file, providers=["CPUExecutionProvider"])
 print("Model loaded successfully!")
 
 # Ensure captured_images directory exists
@@ -53,12 +60,19 @@ async def get_embedding(file: UploadFile = File(...)):
         image = Image.open(io.BytesIO(contents)).convert("RGB")
         
         # Process and run inference
-        inputs = processor(images=image, return_tensors="pt").to(device)
-        with torch.no_grad():
-            outputs = model(**inputs)
-            
-        # Convert embedding tensor to list
-        embedding = outputs.image_embeds[0].cpu().numpy().tolist()
+        inputs = processor(images=image, return_tensors="np")
+        pixel_values = inputs["pixel_values"]
+        
+        # Run inference using ONNX Runtime
+        outputs = session.run(["image_embeds"], {"pixel_values": pixel_values})
+        image_embeds = outputs[0]
+        
+        # L2 normalize the embedding
+        norm = np.linalg.norm(image_embeds, axis=-1, keepdims=True)
+        normalized_image_embeds = image_embeds / (norm + 1e-12)
+        
+        # Convert embedding numpy array to list
+        embedding = normalized_image_embeds[0].tolist()
         return {"status": "success", "embedding": embedding}
     except Exception as e:
         return {"status": "error", "message": str(e)}
