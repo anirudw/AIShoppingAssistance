@@ -547,7 +547,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                             ),
                           ),
                         )
-                      : const Icon(Icons.shutter_speed, color: Color(0xFF00363D)),
+                      : null,
                 ),
               ),
               IconButton(
