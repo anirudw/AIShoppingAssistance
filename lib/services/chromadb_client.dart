@@ -95,7 +95,7 @@ class ChromaDbClient {
     return "This is a simulated response for: $prompt. To unlock Neapolitan precision, add Basil and Mozzarella!";
   }
 
-  /// Method to search an item by photo using local helper server as proxy
+  /// Method to search an item by photo using custom Hugging Face Space directly
   Future<CartItemModel?> searchItemByPhoto(XFile photo) async {
     debugPrint('--- CHROMA SIMILARITY SEARCH START ---');
     debugPrint('Captured photo path: ${photo.path}');
@@ -109,25 +109,36 @@ class ChromaDbClient {
     List<double> queryEmbedding;
 
     try {
-      debugPrint('Uploading image to local saver server & generating CLIP embedding...');
+      debugPrint('Uploading image directly to custom Hugging Face Space & generating CLIP embedding...');
       final bytes = await photo.readAsBytes();
       
-      final response = await http.post(
-        Uri.parse('http://localhost:5001/'),
-        headers: {'Content-Type': 'image/jpeg'},
-        body: bytes,
+      final String spaceUrl = dotenv.env['HF_SPACE_URL'] ?? '';
+      if (spaceUrl.isEmpty) {
+        throw Exception('HF_SPACE_URL is not configured in .env');
+      }
+
+      final request = http.MultipartRequest('POST', Uri.parse(spaceUrl));
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: 'image.jpg',
+        ),
       );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
           queryEmbedding = List<double>.from(data['embedding']);
-          debugPrint('Successfully received CLIP embedding from local helper server (dimension: ${queryEmbedding.length})');
+          debugPrint('Successfully received CLIP embedding from HF Space (dimension: ${queryEmbedding.length})');
         } else {
-          throw Exception('Local helper server error: ${data['message']}');
+          throw Exception('HF Space error: ${data['message']}');
         }
       } else {
-        throw Exception('Failed to connect to local helper server: Status ${response.statusCode}');
+        throw Exception('Failed to connect to HF Space: Status ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error generating CLIP embedding: $e. Falling back to mock.');
@@ -186,27 +197,5 @@ class ChromaDbClient {
     return List.generate(512, (_) => random.nextDouble() * 2 - 1);
   }
 
-  String _getMimeType(String fileName) {
-    final ext = fileName.split('.').last.toLowerCase();
-    if (ext == 'png') return 'image/png';
-    if (ext == 'webp') return 'image/webp';
-    return 'image/jpeg';
-  }
 
-  Future<void> _uploadImageToLocalServer(List<int> bytes) async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://localhost:5001/'),
-        headers: {'Content-Type': 'image/jpeg'},
-        body: bytes,
-      );
-      if (response.statusCode == 200) {
-        debugPrint('[Saver Server] Captured image saved successfully to the project directory.');
-      } else {
-        debugPrint('[Saver Server] Server returned error: ${response.statusCode} - ${response.body}');
-      }
-    } catch (e) {
-      debugPrint('[Saver Server] Local helper server not running or unreachable. (Image not saved to disk: $e)');
-    }
-  }
 }
