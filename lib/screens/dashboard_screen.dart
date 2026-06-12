@@ -26,10 +26,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   bool _isLoadingRag = false;
   double _shutterScale = 1.0;
   bool _showZoomSlider = false;
-  double _reticleSize = 200.0;
+  double _zoomLevel = 1.0;
+  double _zoomLevelAtStart = 1.0;
   bool _isSliderPersistent = false;
   Offset _dragStartPos = Offset.zero;
-  double _reticleSizeAtStart = 200.0;
   double _zoomButtonScale = 1.0;
 
   // Shopping Cart State
@@ -65,6 +65,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       if (mounted) setState(() => _isCameraInitialized = true);
     } catch (e) {
       debugPrint("Camera initialization failed: $e");
+    }
+  }
+
+  Future<void> _updateHardwareZoom(double level) async {
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      try {
+        final maxZoom = await _cameraController!.getMaxZoomLevel();
+        final minZoom = await _cameraController!.getMinZoomLevel();
+        final targetZoom = minZoom + (level - 1.0) * ((maxZoom - minZoom) / 2.0);
+        await _cameraController!.setZoomLevel(targetZoom.clamp(minZoom, maxZoom));
+      } catch (e) {
+        debugPrint("Hardware zoom not supported or failed: $e");
+      }
     }
   }
 
@@ -370,14 +383,20 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           child: Stack(
             children: [
               // Background Camera Feed
+              // Background Camera Feed
               if (_isCameraInitialized && _cameraController != null)
                 Positioned.fill(
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: _cameraController!.value.previewSize?.width ?? 1,
-                      height: _cameraController!.value.previewSize?.height ?? 1,
-                      child: CameraPreview(_cameraController!),
+                  child: AnimatedScale(
+                    scale: _zoomLevel,
+                    duration: const Duration(milliseconds: 120),
+                    curve: Curves.easeOut,
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _cameraController!.value.previewSize?.width ?? 1,
+                        height: _cameraController!.value.previewSize?.height ?? 1,
+                        child: CameraPreview(_cameraController!),
+                      ),
                     ),
                   ),
                 )
@@ -394,8 +413,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               // Scanning Reticle Overlay (Rounded Cutout Corners)
               Center(
                 child: SizedBox(
-                  width: _reticleSize,
-                  height: _reticleSize,
+                  width: 180.0,
+                  height: 180.0,
                   child: CustomPaint(
                     painter: ReticlePainter(
                       color: const Color(0xFF23C8D9),
@@ -440,7 +459,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         ),
                       ),
                       child: Text(
-                        '${(240.0 / _reticleSize).toStringAsFixed(1)}x',
+                        '${_zoomLevel.toStringAsFixed(1)}x',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -491,13 +510,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
                               ),
                               child: Slider(
-                                value: _reticleSize,
-                                min: 100.0,
-                                max: 240.0,
+                                value: _zoomLevel,
+                                min: 1.0,
+                                max: 3.0,
                                 onChanged: (val) {
                                   setState(() {
-                                    _reticleSize = val;
+                                    _zoomLevel = val;
                                   });
+                                  _updateHardwareZoom(val);
                                 },
                               ),
                             ),
@@ -525,14 +545,16 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                           _showZoomSlider = true;
                           _zoomButtonScale = 1.25;
                           _dragStartPos = details.globalPosition;
-                          _reticleSizeAtStart = _reticleSize;
+                          _zoomLevelAtStart = _zoomLevel;
                         });
                       },
                       onLongPressMoveUpdate: (details) {
                         final double dx = details.globalPosition.dx - _dragStartPos.dx;
+                        final double newZoom = (_zoomLevelAtStart - (dx / 70.0)).clamp(1.0, 3.0);
                         setState(() {
-                          _reticleSize = (_reticleSizeAtStart + dx).clamp(100.0, 240.0);
+                          _zoomLevel = newZoom;
                         });
+                        _updateHardwareZoom(newZoom);
                       },
                       onLongPressEnd: (details) {
                         setState(() {
