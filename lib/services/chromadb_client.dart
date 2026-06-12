@@ -12,16 +12,11 @@ class ChromaDbClient {
   final String _database = 'QLESS';
 
   late final String _apiKey;
-  late final String _hfToken;
 
   ChromaDbClient() {
     _apiKey = dotenv.env['CHROMA_API_KEY'] ?? '';
     if (_apiKey.isEmpty) {
       debugPrint('Warning: CHROMA_API_KEY is not set in .env');
-    }
-    _hfToken = dotenv.env['HF_API_TOKEN'] ?? '';
-    if (_hfToken.isEmpty) {
-      debugPrint('Warning: HF_API_TOKEN is not set in .env');
     }
   }
 
