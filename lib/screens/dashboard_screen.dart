@@ -258,69 +258,67 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   }
 
   Widget _buildCameraViewport() {
-    return SizedBox(
-      height: 309,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          // Background Camera Feed
-          if (_isCameraInitialized && _cameraController != null)
-            Positioned.fill(
-              child: ClipRect(
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _cameraController!.value.previewSize?.height ?? 1,
-                    height: _cameraController!.value.previewSize?.width ?? 1,
-                    child: CameraPreview(_cameraController!),
+    final double aspectRatio = _isCameraInitialized && _cameraController != null
+        ? (_cameraController!.value.previewSize?.width ?? 16) / (_cameraController!.value.previewSize?.height ?? 9)
+        : 16 / 9;
+
+    return Center(
+      child: SizedBox(
+        height: 309,
+        child: AspectRatio(
+          aspectRatio: aspectRatio,
+          child: Stack(
+            children: [
+              // Background Camera Feed
+              if (_isCameraInitialized && _cameraController != null)
+                Positioned.fill(
+                  child: CameraPreview(_cameraController!),
+                )
+              else
+                Positioned.fill(
+                  child: Container(
+                    color: const Color(0xFF1A1A1A),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Color(0xFF00E0FF)),
+                    ),
+                  ),
+                ),
+              
+              // Scanning Reticle Overlay
+              Center(
+                child: Container(
+                  width: 220,
+                  height: 220,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF00E0FF).withValues(alpha: 0.1), width: 1),
+                  ),
+                  child: Stack(
+                    children: [
+                      _buildReticleCorner(top: 0, left: 0, borderRight: false, borderBottom: false),
+                      _buildReticleCorner(top: 0, right: 0, borderLeft: false, borderBottom: false),
+                      _buildReticleCorner(bottom: 0, left: 0, borderRight: false, borderTop: false),
+                      _buildReticleCorner(bottom: 0, right: 0, borderLeft: false, borderTop: false),
+                      if (_isSearchingImage)
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                const Color(0xFF00E0FF).withValues(alpha: 0.2),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-            )
-          else
-            Positioned.fill(
-              child: Container(
-                color: const Color(0xFF1A1A1A),
-                child: const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF00E0FF)),
-                ),
-              ),
-            ),
-          
-          // Scanning Reticle Overlay
-          Center(
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF00E0FF).withValues(alpha: 0.1), width: 1),
-              ),
-              child: Stack(
-                children: [
-                  _buildReticleCorner(top: 0, left: 0, borderRight: false, borderBottom: false),
-                  _buildReticleCorner(top: 0, right: 0, borderLeft: false, borderBottom: false),
-                  _buildReticleCorner(bottom: 0, left: 0, borderRight: false, borderTop: false),
-                  _buildReticleCorner(bottom: 0, right: 0, borderLeft: false, borderTop: false),
-                  if (_isSearchingImage)
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            const Color(0xFF00E0FF).withValues(alpha: 0.2),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+            ],
           ),
-
-        ],
+        ),
       ),
     );
   }
