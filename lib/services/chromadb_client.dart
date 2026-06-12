@@ -119,7 +119,7 @@ class ChromaDbClient {
         throw Exception('HF_API_TOKEN is not configured in .env');
       }
 
-      const modelUrl = 'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/clip-ViT-B-32';
+      const modelUrl = 'https://api-inference.huggingface.co/pipeline/feature-extraction/openai/clip-vit-base-patch32';
       
       final hfResponse = await http.post(
         Uri.parse(modelUrl),
