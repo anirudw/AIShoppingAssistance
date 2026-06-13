@@ -225,7 +225,7 @@ async def get_gallery():
     """
     return html_content
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health_check():
     return {"status": "ok"}
 
