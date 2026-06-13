@@ -48,3 +48,4 @@ app.*.map.json
 .env
 .venv/
 captured_images/
+__pycache__/
