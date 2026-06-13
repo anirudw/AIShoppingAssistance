@@ -53,7 +53,7 @@ class _CartItemState extends State<CartItem> {
         border: Border.all(color: const Color(0xFFF3F4F6)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: const Color(0xFF1A1A1A).withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -127,10 +127,10 @@ class _CartItemState extends State<CartItem> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0x0F000000)),
+              border: Border.all(color: const Color(0x0F1A1A1A)),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x05000000),
+                  color: Color(0x051A1A1A),
                   blurRadius: 4,
                   offset: Offset(0, 1),
                 ),

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'screens/dashboard_screen.dart';
 import 'services/cart_service.dart';
+import 'services/inventory_service.dart';
 
 List<CameraDescription> cameras = [];
 
@@ -33,7 +34,8 @@ Future<void> main() async {
     debugPrint('Supabase initialization error: $e');
   }
 
-  // Pre-load cart session from persistent storage before rendering.
+  // Pre-load local product catalog and cart session before rendering.
+  await InventoryService().initLocalCatalog();
   await CartService().load();
 
   runApp(MainApp(cameras: cameras));

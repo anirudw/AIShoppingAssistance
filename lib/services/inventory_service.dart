@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -8,6 +10,30 @@ class InventoryService {
   InventoryService._internal();
 
   final _supabase = Supabase.instance.client;
+
+  final Map<String, String> _imageUrls = {};
+
+  Future<void> initLocalCatalog() async {
+    try {
+      final jsonStr = await rootBundle.loadString('inventory.json');
+      final data = jsonDecode(jsonStr);
+      final items = data['items'] as List;
+      for (var item in items) {
+        final slug = item['slug'] as String;
+        final imageUrl = item['image_url'] as String?;
+        if (imageUrl != null) {
+          _imageUrls[slug] = imageUrl;
+        }
+      }
+      debugPrint('[InventoryService] Loaded ${_imageUrls.length} image URLs from inventory.json');
+    } catch (e) {
+      debugPrint('[InventoryService] Error loading inventory.json: $e');
+    }
+  }
+
+  String getImageUrl(String slug) {
+    return _imageUrls[slug] ?? "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop";
+  }
 
   /// Helper to check if credentials are set in .env
   bool _hasCredentials() {

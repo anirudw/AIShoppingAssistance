@@ -163,8 +163,7 @@ class ChromaDbClient {
         if (metadatas.isNotEmpty && metadatas[0].isNotEmpty) {
           final itemMeta = metadatas[0][0];
           final rawProductName = itemMeta['product_name'] ?? 'Unknown Item';
-          // Strip trailing index numbers (e.g. -2, -3) to allow proper grouping of identical products
-          final productName = rawProductName.toString().replaceAll(RegExp(r'-\d+$'), '');
+          final productName = _normalizeSlug(rawProductName.toString());
           final double distance = (distances.isNotEmpty && distances[0].isNotEmpty)
               ? (distances[0][0] as num).toDouble()
               : 2.0;
@@ -198,7 +197,7 @@ class ChromaDbClient {
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               name: officialName,
               details: "SKU: $sku • ₹${priceRupees.toStringAsFixed(2)}",
-              imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop",
+              imageUrl: InventoryService().getImageUrl(productName),
               price: priceRupees,
               quantity: 1,
             );
@@ -209,7 +208,7 @@ class ChromaDbClient {
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               name: productName.replaceAll('-', ' ').toUpperCase(),
               details: "Unlisted item • ₹0.00",
-              imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop",
+              imageUrl: InventoryService().getImageUrl(productName),
               price: 0.0,
               quantity: 1,
             );
@@ -232,6 +231,20 @@ class ChromaDbClient {
   List<double> _generateMockEmbedding() {
     final random = Random();
     return List.generate(512, (_) => random.nextDouble() * 2 - 1);
+  }
+
+  String _normalizeSlug(String slug) {
+    // Strip trailing index numbers (e.g. -2, -3)
+    final cleanSlug = slug.replaceAll(RegExp(r'-\d+$'), '');
+
+    // Map ChromaDB metadata product names to correct Supabase/inventory slugs
+    const mapping = {
+      'roasted-almond-chocolate-bar-cadbury': 'dairy-milk-roast-almond-cadbury',
+      'cadbury-dairy-milk-crispello': 'dairy-milk-crispello-cadbury',
+      'fruit-and-nut-milk-chocolate-bar-cadbury': 'dairy-milk-chocolate-cadbury',
+    };
+
+    return mapping[cleanSlug] ?? cleanSlug;
   }
 
 
