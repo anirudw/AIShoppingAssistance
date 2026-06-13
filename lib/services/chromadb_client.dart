@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:camera/camera.dart';
 import '../models/cart_item_model.dart';
+import 'inventory_service.dart';
 
 class ChromaDbClient {
   static const String _baseUrl = 'https://api.trychroma.com/api/v1'; // Update to the specific cloud endpoint if different
@@ -181,14 +182,37 @@ class ChromaDbClient {
           
           debugPrint('--- CHROMA SIMILARITY SEARCH END (SUCCESS) ---');
           
-          return CartItemModel(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            name: productName.replaceAll('-', ' ').toUpperCase(),
-            details: "1 Item • \$2.99", // Mocking price since it isn't in DB
-            imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop",
-            price: 2.99,
-            quantity: 1,
-          );
+          debugPrint('[ChromaDbClient] Initiating Supabase fetch for slug: "$productName"');
+          // Query Supabase for detailed product info
+          final productData = await InventoryService().getProductBySlug(productName);
+
+          if (productData != null) {
+            final String officialName = productData['name'] as String;
+            final double priceRupees = (productData['price_rupees'] as num).toDouble();
+            final String sku = productData['sku'] as String;
+
+            debugPrint('[ChromaDbClient] Supabase match found: $officialName (SKU: $sku, Price: ₹$priceRupees)');
+
+            return CartItemModel(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              name: officialName,
+              details: "SKU: $sku • ₹${priceRupees.toStringAsFixed(2)}",
+              imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop",
+              price: priceRupees,
+              quantity: 1,
+            );
+          } else {
+            debugPrint('[ChromaDbClient] Supabase match failed/null for slug: "$productName". Using fallback model.');
+            // Fallback if the database doesn't have the matched product
+            return CartItemModel(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              name: productName.replaceAll('-', ' ').toUpperCase(),
+              details: "Unlisted item • ₹0.00",
+              imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop",
+              price: 0.0,
+              quantity: 1,
+            );
+          }
         } else {
           debugPrint('Warning: Empty results or metadata returned from ChromaDB.');
         }
