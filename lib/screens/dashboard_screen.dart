@@ -18,6 +18,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
+enum _DbStatus { unknown, ok, error }
+
 class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin {
   final ChromaDbClient _chromaClient = ChromaDbClient();
   final TextEditingController _ragController = TextEditingController();
@@ -43,6 +45,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   final CartService _cartService = CartService();
   bool _isCheckingOut = false;
 
+  // DB connectivity state — drives the status pill in the app bar
+  _DbStatus _dbStatus = _DbStatus.unknown;
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +64,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     _initializeCamera();
     // Listen to cart changes so the widget rebuilds reactively.
     _cartService.addListener(_onCartChanged);
+    // Silently check DB status on startup so indicator reflects real state.
+    _refreshDbStatus();
   }
 
   void _onCartChanged() {
@@ -295,18 +302,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       final CartItemModel? item = await _chromaClient.searchItemByPhoto(capturedPhoto);
 
       if (item != null && mounted) {
-        _cartService.addItem(item);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${item.name} added to cart!'),
-            backgroundColor: const Color(0xFF111827),
-            action: SnackBarAction(
-              label: 'OK',
-              textColor: const Color(0xFF23C8D9),
-              onPressed: () {},
+        // Show confirmation sheet — CLIP can confuse similar-looking products
+        // (e.g. different Lays flavours). User verifies before cart is updated.
+        final confirmed = await _showItemConfirmSheet(item);
+        if (confirmed == true && mounted) {
+          _cartService.addItem(item);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${item.name} added to cart!'),
+              backgroundColor: const Color(0xFF111827),
+              duration: const Duration(seconds: 1),
             ),
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
       debugPrint("Error taking picture or searching: $e");
@@ -321,6 +329,180 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     } finally {
       if (mounted) setState(() => _isSearchingImage = false);
     }
+  }
+
+  /// Shows a confirmation bottom sheet for the detected item.
+  /// Returns true if user confirmed, false/null if dismissed.
+  Future<bool?> _showItemConfirmSheet(CartItemModel item) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Container(
+                width: 40, height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    width: 64, height: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: const Color(0xFFF3F4F6),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: CachedNetworkImage(imageUrl: item.imageUrl, fit: BoxFit.cover),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Item detected',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.name,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111827)),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '₹${item.price.toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF23C8D9)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF23C8D9),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text('Add to Cart', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text(
+                    'Not this item',
+                    style: TextStyle(fontSize: 14, color: Color(0xFF6B7280), fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showRagSheet() {
+    _ragController.clear();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Ask Chef RAG',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF111827)),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _ragController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Ask anything about the products...',
+                    hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                    filled: true,
+                    fillColor: const Color(0xFFF9FAFB),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                  onSubmitted: (_) {
+                    Navigator.pop(ctx);
+                    _askChefRag();
+                  },
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _askChefRag();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF23C8D9),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Ask', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _askChefRag() async {
@@ -341,6 +523,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         ),
       );
     }
+  }
+
+  /// Silent background check — updates the indicator, no snackbar.
+  Future<void> _refreshDbStatus() async {
+    final chromaStatus = await _chromaClient.checkConnectivity();
+    final supabaseStatus = await InventoryService().checkConnectivity();
+    if (!mounted) return;
+    final allOk = chromaStatus.startsWith('Connected') && supabaseStatus.startsWith('Connected');
+    setState(() => _dbStatus = allOk ? _DbStatus.ok : _DbStatus.error);
   }
 
   Future<void> _checkDbStatus() async {
@@ -378,6 +569,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           duration: const Duration(seconds: 4),
         ),
       );
+      // Also update the indicator
+      setState(() => _dbStatus = (isChromaOk && isSupabaseOk) ? _DbStatus.ok : _DbStatus.error);
     }
   }
 
@@ -472,12 +665,21 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       AnimatedBuilder(
                         animation: _pulseController,
                         builder: (context, child) {
+                          final dotColor = switch (_dbStatus) {
+                            _DbStatus.ok      => const Color(0xFF22C55E),
+                            _DbStatus.error   => const Color(0xFFEF4444),
+                            _DbStatus.unknown => const Color(0xFF9CA3AF),
+                          };
                           return Container(
                             width: 8,
                             height: 8,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFF22C55E).withValues(alpha: 0.3 + 0.7 * _pulseController.value),
+                              color: dotColor.withValues(
+                                alpha: _dbStatus == _DbStatus.unknown
+                                    ? 0.6
+                                    : 0.3 + 0.7 * _pulseController.value,
+                              ),
                             ),
                           );
                         },
@@ -494,12 +696,20 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       const SizedBox(width: 6),
                       Container(width: 1, height: 12, color: Colors.black.withValues(alpha: 0.08)),
                       const SizedBox(width: 6),
-                      const Text(
-                        'Live',
+                      Text(
+                        switch (_dbStatus) {
+                          _DbStatus.ok      => 'Live',
+                          _DbStatus.error   => 'Error',
+                          _DbStatus.unknown => 'Checking…',
+                        },
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF22C55E),
+                          color: switch (_dbStatus) {
+                            _DbStatus.ok      => const Color(0xFF22C55E),
+                            _DbStatus.error   => const Color(0xFFEF4444),
+                            _DbStatus.unknown => const Color(0xFF9CA3AF),
+                          },
                         ),
                       ),
                     ],
@@ -1061,7 +1271,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             children: [
               Expanded(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: _showRagSheet,
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

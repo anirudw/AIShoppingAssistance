@@ -46,6 +46,11 @@ app.*.map.json
 
 # Local environment and virtual environments
 .env
+.env.local
+.env.*.local
+*.env
 .venv/
 captured_images/
+hf_space/captured_images/
 __pycache__/
+scripts/__pycache__/
