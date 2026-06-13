@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:camera/camera.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'screens/dashboard_screen.dart';
+import 'services/cart_service.dart';
 
 List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     cameras = await availableCameras();
   } catch (e) {
@@ -21,6 +23,20 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Could not load .env file: $e');
   }
+
+  // Initialize Supabase using values from .env
+  try {
+    await Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL'] ?? '',
+      publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    );
+  } catch (e) {
+    debugPrint('Supabase initialization error: $e');
+  }
+
+  // Pre-load cart session from persistent storage before rendering.
+  await CartService().load();
+
   runApp(MainApp(cameras: cameras));
 }
 

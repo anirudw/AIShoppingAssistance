@@ -1,0 +1,73 @@
+-- 1. Create the inventory table
+CREATE TABLE IF NOT EXISTS public.inventory (
+  sku TEXT PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  price_rupees NUMERIC NOT NULL,
+  staging_dirs TEXT[] NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable row level security (optional, but recommended)
+ALTER TABLE public.inventory ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read access" ON public.inventory FOR SELECT USING (true);
+
+-- 2. Insert items
+INSERT INTO public.inventory (sku, slug, name, price_rupees, staging_dirs)
+VALUES
+  ('QLS-0001', '5-star-magic-health-drink-bournvita', 'Bournvita 5 Star Magic Health Drink', 249, ARRAY['5-star-magic-health-drink-bournvita']),
+  ('QLS-0002', 'air-freshener-ambi-pur', 'Ambi Pur Air Freshener', 299, ARRAY['air-freshener-ambi-pur']),
+  ('QLS-0003', 'almond-chocolate-bar-snickers', 'Snickers Almond Chocolate Bar', 50, ARRAY['almond-chocolate-bar-snickers']),
+  ('QLS-0004', 'american-style-cream-and-onion-chips-lays', 'Lay''s American Style Cream and Onion Chips', 20, ARRAY['american-style-cream-and-onion-chips-lays', 'american-style-cream-and-onion-chips-lays-2', 'american-style-cream-and-onion-chips-lays-3', 'american-style-cream-and-onion-chips-lays-4']),
+  ('QLS-0005', 'car-air-freshener-jasmine-ambi-pur', 'Ambi Pur Jasmine Car Air Freshener', 399, ARRAY['car-air-freshener-jasmine-ambi-pur']),
+  ('QLS-0006', 'ceregrow-multigrain-cereal-nestle', 'Nestle Ceregrow Multigrain Cereal', 365, ARRAY['ceregrow-multigrain-cereal-nestle', 'ceregrow-multigrain-cereal-nestle-2']),
+  ('QLS-0007', 'cerelac-rice-nestle', 'Nestle Cerelac Rice', 285, ARRAY['cerelac-rice-nestle']),
+  ('QLS-0008', 'cerelac-wheat-apple-nestle', 'Nestle Cerelac Wheat Apple', 325, ARRAY['cerelac-wheat-apple-nestle']),
+  ('QLS-0009', 'cheez-puffs-cheetos', 'Cheetos Cheez Puffs', 20, ARRAY['cheez-puffs-cheetos', 'cheez-puffs-cheetos-2']),
+  ('QLS-0010', 'chicken-noodles-maggi', 'Maggi Chicken Noodles', 15, ARRAY['chicken-noodles-maggi']),
+  ('QLS-0011', 'chocolate-bar-mars', 'Mars Chocolate Bar', 40, ARRAY['chocolate-bar-mars']),
+  ('QLS-0012', 'chocolate-bar-snickers', 'Snickers Chocolate Bar', 40, ARRAY['chocolate-bar-snickers']),
+  ('QLS-0013', 'chocolate-bar-softer-bar', 'Softer Bar Chocolate Bar', 30, ARRAY['chocolate-bar-softer-bar']),
+  ('QLS-0014', 'chocos-crunchy-bites-coco-caramel-kelloggs', 'Kellogg''s Chocos Crunchy Bites Coco Caramel', 35, ARRAY['chocos-crunchy-bites-coco-caramel-kelloggs']),
+  ('QLS-0015', 'classic-malt-health-drink-horlicks', 'Horlicks Classic Malt Health Drink', 249, ARRAY['classic-malt-health-drink-horlicks']),
+  ('QLS-0016', 'corn-flakes-original-kelloggs', 'Kellogg''s Corn Flakes Original', 195, ARRAY['corn-flakes-original-kelloggs', 'corn-flakes-original-kelloggs-2']),
+  ('QLS-0017', 'dairy-milk-chocolate-cadbury', 'Cadbury Dairy Milk Chocolate', 40, ARRAY['dairy-milk-chocolate-cadbury']),
+  ('QLS-0018', 'dairy-milk-crispello-cadbury', 'Cadbury Dairy Milk Crispello', 40, ARRAY['dairy-milk-crispello-cadbury']),
+  ('QLS-0019', 'dairy-milk-roast-almond-cadbury', 'Cadbury Dairy Milk Roast Almond', 50, ARRAY['dairy-milk-roast-almond-cadbury']),
+  ('QLS-0020', 'disinfectant-surface-cleaner-lizol', 'Lizol Disinfectant Surface Cleaner', 220, ARRAY['disinfectant-surface-cleaner-lizol']),
+  ('QLS-0021', 'flushmatic-citrus-toilet-cleaner-harpic', 'Harpic Flushmatic Citrus Toilet Cleaner', 99, ARRAY['flushmatic-citrus-toilet-cleaner-harpic']),
+  ('QLS-0022', 'fuse-chocolate-bar-cadbury', 'Cadbury Fuse Chocolate Bar', 40, ARRAY['fuse-chocolate-bar-cadbury']),
+  ('QLS-0023', 'ginger-garlic-paste-aachi', 'Aachi Ginger Garlic Paste', 80, ARRAY['ginger-garlic-paste-aachi']),
+  ('QLS-0024', 'gold-standardised-milk-amul', 'Amul Gold Standardised Milk', 37, ARRAY['gold-standardised-milk-amul']),
+  ('QLS-0025', 'groundnut-oil-idhayam-mantra', 'Idhayam Mantra Groundnut Oil', 250, ARRAY['groundnut-oil-idhayam-mantra']),
+  ('QLS-0026', 'health-drink-2x-strength-bournvita', 'Bournvita 2x Strength Health Drink', 275, ARRAY['health-drink-2x-strength-bournvita']),
+  ('QLS-0027', 'health-drink-boost', 'Boost Health Drink', 255, ARRAY['health-drink-boost', 'health-drink-boost-2', 'health-drink-boost-3']),
+  ('QLS-0028', 'hot-and-spicy-korean-kimchi-noodles-geki', 'Geki Hot and Spicy Korean Kimchi Noodles', 50, ARRAY['hot-and-spicy-korean-kimchi-noodles-geki']),
+  ('QLS-0029', 'hot-and-sweet-tomato-chilli-sauce-maggi', 'Maggi Hot and Sweet Tomato Chilli Sauce', 170, ARRAY['hot-and-sweet-tomato-chilli-sauce-maggi']),
+  ('QLS-0030', 'indias-magic-masala-chips-lays', 'Lay''s India''s Magic Masala Chips', 20, ARRAY['indias-magic-masala-chips-lays', 'indias-magic-masala-chips-lays-2']),
+  ('QLS-0031', 'jasmine-mist-air-freshener-odonil', 'Odonil Jasmine Mist Air Freshener', 99, ARRAY['jasmine-mist-air-freshener-odonil']),
+  ('QLS-0032', 'kitkat-chunky-white-nestle', 'Nestle KitKat Chunky White', 70, ARRAY['kitkat-chunky-white-nestle']),
+  ('QLS-0033', 'lactogen-pro-1-nestle', 'Nestle Lactogen Pro 1', 420, ARRAY['lactogen-pro-1-nestle']),
+  ('QLS-0034', 'lactogen-pro-4-nestle', 'Nestle Lactogen Pro 4', 440, ARRAY['lactogen-pro-4-nestle']),
+  ('QLS-0035', 'milkybar-white-chocolate-nestle', 'Nestle Milkybar White Chocolate', 20, ARRAY['milkybar-white-chocolate-nestle']),
+  ('QLS-0036', 'multigrain-chocos-chhota-bheem-kelloggs', 'Kellogg''s Multigrain Chocos Chhota Bheem', 20, ARRAY['multigrain-chocos-chhota-bheem-kelloggs']),
+  ('QLS-0037', 'multigrain-chocos-kelloggs', 'Kellogg''s Multigrain Chocos', 210, ARRAY['multigrain-chocos-kelloggs']),
+  ('QLS-0038', 'oats-quaker', 'Quaker Oats', 195, ARRAY['oats-quaker']),
+  ('QLS-0039', 'power-pocket-rose-fresh-blossom-godrej-aer', 'Godrej Aer Power Pocket Rose Fresh Blossom', 65, ARRAY['power-pocket-rose-fresh-blossom-godrej-aer']),
+  ('QLS-0040', 'puffcorn-yummy-cheese-kurkure-playz', 'Kurkure Playz Puffcorn Yummy Cheese', 20, ARRAY['puffcorn-yummy-cheese-kurkure-playz']),
+  ('QLS-0041', 'refined-sunflower-oil-gold-winner', 'Gold Winner Refined Sunflower Oil', 180, ARRAY['refined-sunflower-oil-gold-winner']),
+  ('QLS-0042', 'rich-tomato-ketchup-maggi', 'Maggi Rich Tomato Ketchup', 155, ARRAY['rich-tomato-ketchup-maggi']),
+  ('QLS-0043', 'rolled-oats-disaano', 'Disaano Rolled Oats', 199, ARRAY['rolled-oats-disaano']),
+  ('QLS-0044', 'room-spray-odonil', 'Odonil Room Spray', 179, ARRAY['room-spray-odonil']),
+  ('QLS-0045', 'shampoo-hair-colour-godrej-selfie', 'Godrej Selfie Shampoo Hair Colour', 30, ARRAY['shampoo-hair-colour-godrej-selfie']),
+  ('QLS-0046', 'similac-classic-stage-1-abbott', 'Abbott Similac Classic Stage 1', 430, ARRAY['similac-classic-stage-1-abbott']),
+  ('QLS-0047', 'spanish-tomato-tango-chips-lays', 'Lay''s Spanish Tomato Tango Chips', 20, ARRAY['spanish-tomato-tango-chips-lays', 'spanish-tomato-tango-chips-lays-2']),
+  ('QLS-0048', 'spicy-manchurian-cuppa-noodles-maggi', 'Maggi Spicy Manchurian Cuppa Noodles', 50, ARRAY['spicy-manchurian-cuppa-noodles-maggi']),
+  ('QLS-0049', 'super-muesli-zero-added-sugar-yoga-bar', 'Yoga Bar Super Muesli Zero Added Sugar', 349, ARRAY['super-muesli-zero-added-sugar-yoga-bar']),
+  ('QLS-0050', 'sweet-chilli-hot-sauce-veeba', 'Veeba Sweet Chilli Hot Sauce', 149, ARRAY['sweet-chilli-hot-sauce-veeba']),
+  ('QLS-0051', 'sweet-onion-sauce-veeba', 'Veeba Sweet Onion Sauce', 149, ARRAY['sweet-onion-sauce-veeba']),
+  ('QLS-0052', 'synthetic-vinegar-double-horse', 'Double Horse Synthetic Vinegar', 55, ARRAY['synthetic-vinegar-double-horse']),
+  ('QLS-0053', 'taj-mahal-tea-brooke-bond', 'Brooke Bond Taj Mahal Tea', 260, ARRAY['taj-mahal-tea-brooke-bond']),
+  ('QLS-0054', 'thermosteel-water-bottle-milton', 'Milton Thermosteel Water Bottle', 899, ARRAY['thermosteel-water-bottle-milton']),
+  ('QLS-0055', 'tomato-sauce-happy', 'Happy Tomato Sauce', 110, ARRAY['tomato-sauce-happy']),
+  ('QLS-0056', 'womens-plus-caramel-horlicks', 'Horlicks Women''s Plus Caramel', 320, ARRAY['womens-plus-caramel-horlicks', 'womens-plus-caramel-horlicks-2']);

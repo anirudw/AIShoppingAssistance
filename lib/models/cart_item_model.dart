@@ -32,4 +32,26 @@ class CartItemModel {
       quantity: quantity ?? this.quantity,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'details': details,
+      'imageUrl': imageUrl,
+      'price': price,
+      'quantity': quantity,
+    };
+  }
+
+  factory CartItemModel.fromJson(Map<String, dynamic> json) {
+    return CartItemModel(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      details: json['details'] as String? ?? '',
+      imageUrl: json['imageUrl'] as String? ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      quantity: json['quantity'] as int? ?? 1,
+    );
+  }
 }
