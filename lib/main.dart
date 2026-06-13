@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:camera/camera.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -50,7 +49,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chef RAG Dashboard',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light().copyWith(
+      theme: ThemeData(
+        fontFamily: 'ClashGrotesk',
         scaffoldBackgroundColor: const Color(0xFFF4F7F8),
         colorScheme: const ColorScheme.light(
           primary: Color(0xFF23C8D9),
@@ -62,11 +62,25 @@ class MainApp extends StatelessWidget {
           onSurfaceVariant: Color(0xFF6B7280),
           error: Color(0xFFEF4444),
         ),
-        textTheme: GoogleFonts.interTextTheme(
-          ThemeData.light().textTheme.apply(
-                bodyColor: const Color(0xFF111827),
-                displayColor: const Color(0xFF111827),
-              ),
+        textTheme: ThemeData.light().textTheme.copyWith(
+          displayLarge: const TextStyle(fontFamily: 'ClashDisplay'),
+          displayMedium: const TextStyle(fontFamily: 'ClashDisplay'),
+          displaySmall: const TextStyle(fontFamily: 'ClashDisplay'),
+          headlineLarge: const TextStyle(fontFamily: 'ClashDisplay'),
+          headlineMedium: const TextStyle(fontFamily: 'ClashDisplay'),
+          headlineSmall: const TextStyle(fontFamily: 'ClashDisplay'),
+          titleLarge: const TextStyle(fontFamily: 'ClashDisplay'),
+          titleMedium: const TextStyle(fontFamily: 'ClashDisplay'),
+          titleSmall: const TextStyle(fontFamily: 'ClashDisplay'),
+          bodyLarge: const TextStyle(fontFamily: 'ClashGrotesk'),
+          bodyMedium: const TextStyle(fontFamily: 'ClashGrotesk'),
+          bodySmall: const TextStyle(fontFamily: 'ClashGrotesk'),
+          labelLarge: const TextStyle(fontFamily: 'ClashGrotesk'),
+          labelMedium: const TextStyle(fontFamily: 'ClashGrotesk'),
+          labelSmall: const TextStyle(fontFamily: 'ClashGrotesk'),
+        ).apply(
+          bodyColor: const Color(0xFF111827),
+          displayColor: const Color(0xFF111827),
         ),
       ),
       home: DashboardScreen(cameras: cameras),

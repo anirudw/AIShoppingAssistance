@@ -29,7 +29,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
   bool _isSearchingImage = false;
-  bool _isLoadingRag = false;
   double _shutterScale = 1.0;
   bool _showZoomSlider = false;
   double _zoomLevel = 1.0;
@@ -78,7 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     // Use low resolution on mobile: CLIP only needs 224x224px, and high-res
     // captures cause a multi-megabyte JPEG write to disk, adding 2-3s of latency.
     // Web uses in-memory Blobs so resolution has no disk-write overhead there.
-    final resolution = kIsWeb ? ResolutionPreset.medium : ResolutionPreset.low;
+    const resolution = kIsWeb ? ResolutionPreset.medium : ResolutionPreset.low;
     _cameraController = CameraController(
       widget.cameras[0],
       resolution,
@@ -520,14 +519,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   Future<void> _askChefRag() async {
     if (_ragController.text.trim().isEmpty) return;
     
-    setState(() => _isLoadingRag = true);
     final prompt = _ragController.text;
     _ragController.clear();
     
     final response = await _chromaClient.askChefRag(prompt);
     
     if (mounted) {
-      setState(() => _isLoadingRag = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(response, style: const TextStyle(color: Colors.white)),
@@ -598,6 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       backgroundColor: const Color(0xFFF4F7F8),
       appBar: _buildAppBar(),
       body: Stack(
+        clipBehavior: Clip.none,
         children: [
           Column(
             children: [
@@ -667,7 +665,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.black.withValues(alpha: 0.04)),
                   ),
@@ -1233,19 +1231,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                            child: const Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 16,
-                            ),
+                          const SizedBox(width: 6),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                            size: 14,
                           ),
                         ],
                       ),
@@ -1258,74 +1248,80 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildBottomNavBar() {
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(40),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          height: 82,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(40),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: _showRagSheet,
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.chat_bubble_outline, color: Color(0xFF9CA3AF), size: 22),
-                      SizedBox(height: 4),
-                      Text(
-                        'Chat',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF9CA3AF),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(40),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              height: 82,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
                   ),
-                ),
+                ],
               ),
-              _buildShutterButton(),
-              Expanded(
-                child: InkWell(
-                  onTap: () {},
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.mic_none, color: Color(0xFF9CA3AF), size: 22),
-                      SizedBox(height: 4),
-                      Text(
-                        'Voice',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF9CA3AF),
-                          fontWeight: FontWeight.w500,
-                        ),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: _showRagSheet,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chat_bubble_outline, color: Color(0xFF9CA3AF), size: 22),
+                          SizedBox(height: 4),
+                          Text(
+                            'Chat',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF9CA3AF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 74),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {},
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.mic_none, color: Color(0xFF9CA3AF), size: 22),
+                          SizedBox(height: 4),
+                          Text(
+                            'Voice',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF9CA3AF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        _buildShutterButton(),
+      ],
     );
   }
 
