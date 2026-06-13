@@ -315,6 +315,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
           );
         }
+      } else if (mounted) {
+        // Distance exceeded threshold — no confident match found
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Item not recognized. Try a closer scan.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Color(0xFF111827),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       debugPrint("Error taking picture or searching: $e");
