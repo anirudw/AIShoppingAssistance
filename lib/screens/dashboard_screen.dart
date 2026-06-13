@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
@@ -57,10 +58,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   Future<void> _initializeCamera() async {
     if (widget.cameras.isEmpty) return;
     
+    // Use low resolution on mobile: CLIP only needs 224x224px, and high-res
+    // captures cause a multi-megabyte JPEG write to disk, adding 2-3s of latency.
+    // Web uses in-memory Blobs so resolution has no disk-write overhead there.
+    final resolution = kIsWeb ? ResolutionPreset.medium : ResolutionPreset.low;
     _cameraController = CameraController(
       widget.cameras[0],
-      ResolutionPreset.high,
+      resolution,
       enableAudio: false,
+      imageFormatGroup: kIsWeb ? null : ImageFormatGroup.jpeg,
     );
     
     try {
