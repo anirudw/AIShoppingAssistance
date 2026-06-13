@@ -1,0 +1,521 @@
+{
+  "currency": "INR",
+  "pricing_note": "Approximate catalog prices for demo inventory; staging images do not include normalized pack sizes.",
+  "items": [
+    {
+      "sku": "QLS-0001",
+      "slug": "5-star-magic-health-drink-bournvita",
+      "name": "Bournvita 5 Star Magic Health Drink",
+      "price_rupees": 249,
+      "staging_dirs": [
+        "5-star-magic-health-drink-bournvita"
+      ]
+    },
+    {
+      "sku": "QLS-0002",
+      "slug": "air-freshener-ambi-pur",
+      "name": "Ambi Pur Air Freshener",
+      "price_rupees": 299,
+      "staging_dirs": [
+        "air-freshener-ambi-pur"
+      ]
+    },
+    {
+      "sku": "QLS-0003",
+      "slug": "almond-chocolate-bar-snickers",
+      "name": "Snickers Almond Chocolate Bar",
+      "price_rupees": 50,
+      "staging_dirs": [
+        "almond-chocolate-bar-snickers"
+      ]
+    },
+    {
+      "sku": "QLS-0004",
+      "slug": "american-style-cream-and-onion-chips-lays",
+      "name": "Lay's American Style Cream and Onion Chips",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "american-style-cream-and-onion-chips-lays",
+        "american-style-cream-and-onion-chips-lays-2",
+        "american-style-cream-and-onion-chips-lays-3",
+        "american-style-cream-and-onion-chips-lays-4"
+      ]
+    },
+    {
+      "sku": "QLS-0005",
+      "slug": "car-air-freshener-jasmine-ambi-pur",
+      "name": "Ambi Pur Jasmine Car Air Freshener",
+      "price_rupees": 399,
+      "staging_dirs": [
+        "car-air-freshener-jasmine-ambi-pur"
+      ]
+    },
+    {
+      "sku": "QLS-0006",
+      "slug": "ceregrow-multigrain-cereal-nestle",
+      "name": "Nestle Ceregrow Multigrain Cereal",
+      "price_rupees": 365,
+      "staging_dirs": [
+        "ceregrow-multigrain-cereal-nestle",
+        "ceregrow-multigrain-cereal-nestle-2"
+      ]
+    },
+    {
+      "sku": "QLS-0007",
+      "slug": "cerelac-rice-nestle",
+      "name": "Nestle Cerelac Rice",
+      "price_rupees": 285,
+      "staging_dirs": [
+        "cerelac-rice-nestle"
+      ]
+    },
+    {
+      "sku": "QLS-0008",
+      "slug": "cerelac-wheat-apple-nestle",
+      "name": "Nestle Cerelac Wheat Apple",
+      "price_rupees": 325,
+      "staging_dirs": [
+        "cerelac-wheat-apple-nestle"
+      ]
+    },
+    {
+      "sku": "QLS-0009",
+      "slug": "cheez-puffs-cheetos",
+      "name": "Cheetos Cheez Puffs",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "cheez-puffs-cheetos",
+        "cheez-puffs-cheetos-2"
+      ]
+    },
+    {
+      "sku": "QLS-0010",
+      "slug": "chicken-noodles-maggi",
+      "name": "Maggi Chicken Noodles",
+      "price_rupees": 15,
+      "staging_dirs": [
+        "chicken-noodles-maggi"
+      ]
+    },
+    {
+      "sku": "QLS-0011",
+      "slug": "chocolate-bar-mars",
+      "name": "Mars Chocolate Bar",
+      "price_rupees": 40,
+      "staging_dirs": [
+        "chocolate-bar-mars"
+      ]
+    },
+    {
+      "sku": "QLS-0012",
+      "slug": "chocolate-bar-snickers",
+      "name": "Snickers Chocolate Bar",
+      "price_rupees": 40,
+      "staging_dirs": [
+        "chocolate-bar-snickers"
+      ]
+    },
+    {
+      "sku": "QLS-0013",
+      "slug": "chocolate-bar-softer-bar",
+      "name": "Softer Bar Chocolate Bar",
+      "price_rupees": 30,
+      "staging_dirs": [
+        "chocolate-bar-softer-bar"
+      ]
+    },
+    {
+      "sku": "QLS-0014",
+      "slug": "chocos-crunchy-bites-coco-caramel-kelloggs",
+      "name": "Kellogg's Chocos Crunchy Bites Coco Caramel",
+      "price_rupees": 35,
+      "staging_dirs": [
+        "chocos-crunchy-bites-coco-caramel-kelloggs"
+      ]
+    },
+    {
+      "sku": "QLS-0015",
+      "slug": "classic-malt-health-drink-horlicks",
+      "name": "Horlicks Classic Malt Health Drink",
+      "price_rupees": 249,
+      "staging_dirs": [
+        "classic-malt-health-drink-horlicks"
+      ]
+    },
+    {
+      "sku": "QLS-0016",
+      "slug": "corn-flakes-original-kelloggs",
+      "name": "Kellogg's Corn Flakes Original",
+      "price_rupees": 195,
+      "staging_dirs": [
+        "corn-flakes-original-kelloggs",
+        "corn-flakes-original-kelloggs-2"
+      ]
+    },
+    {
+      "sku": "QLS-0017",
+      "slug": "dairy-milk-chocolate-cadbury",
+      "name": "Cadbury Dairy Milk Chocolate",
+      "price_rupees": 40,
+      "staging_dirs": [
+        "dairy-milk-chocolate-cadbury"
+      ]
+    },
+    {
+      "sku": "QLS-0018",
+      "slug": "dairy-milk-crispello-cadbury",
+      "name": "Cadbury Dairy Milk Crispello",
+      "price_rupees": 40,
+      "staging_dirs": [
+        "dairy-milk-crispello-cadbury"
+      ]
+    },
+    {
+      "sku": "QLS-0019",
+      "slug": "dairy-milk-roast-almond-cadbury",
+      "name": "Cadbury Dairy Milk Roast Almond",
+      "price_rupees": 50,
+      "staging_dirs": [
+        "dairy-milk-roast-almond-cadbury"
+      ]
+    },
+    {
+      "sku": "QLS-0020",
+      "slug": "disinfectant-surface-cleaner-lizol",
+      "name": "Lizol Disinfectant Surface Cleaner",
+      "price_rupees": 220,
+      "staging_dirs": [
+        "disinfectant-surface-cleaner-lizol"
+      ]
+    },
+    {
+      "sku": "QLS-0021",
+      "slug": "flushmatic-citrus-toilet-cleaner-harpic",
+      "name": "Harpic Flushmatic Citrus Toilet Cleaner",
+      "price_rupees": 99,
+      "staging_dirs": [
+        "flushmatic-citrus-toilet-cleaner-harpic"
+      ]
+    },
+    {
+      "sku": "QLS-0022",
+      "slug": "fuse-chocolate-bar-cadbury",
+      "name": "Cadbury Fuse Chocolate Bar",
+      "price_rupees": 40,
+      "staging_dirs": [
+        "fuse-chocolate-bar-cadbury"
+      ]
+    },
+    {
+      "sku": "QLS-0023",
+      "slug": "ginger-garlic-paste-aachi",
+      "name": "Aachi Ginger Garlic Paste",
+      "price_rupees": 80,
+      "staging_dirs": [
+        "ginger-garlic-paste-aachi"
+      ]
+    },
+    {
+      "sku": "QLS-0024",
+      "slug": "gold-standardised-milk-amul",
+      "name": "Amul Gold Standardised Milk",
+      "price_rupees": 37,
+      "staging_dirs": [
+        "gold-standardised-milk-amul"
+      ]
+    },
+    {
+      "sku": "QLS-0025",
+      "slug": "groundnut-oil-idhayam-mantra",
+      "name": "Idhayam Mantra Groundnut Oil",
+      "price_rupees": 250,
+      "staging_dirs": [
+        "groundnut-oil-idhayam-mantra"
+      ]
+    },
+    {
+      "sku": "QLS-0026",
+      "slug": "health-drink-2x-strength-bournvita",
+      "name": "Bournvita 2x Strength Health Drink",
+      "price_rupees": 275,
+      "staging_dirs": [
+        "health-drink-2x-strength-bournvita"
+      ]
+    },
+    {
+      "sku": "QLS-0027",
+      "slug": "health-drink-boost",
+      "name": "Boost Health Drink",
+      "price_rupees": 255,
+      "staging_dirs": [
+        "health-drink-boost",
+        "health-drink-boost-2",
+        "health-drink-boost-3"
+      ]
+    },
+    {
+      "sku": "QLS-0028",
+      "slug": "hot-and-spicy-korean-kimchi-noodles-geki",
+      "name": "Geki Hot and Spicy Korean Kimchi Noodles",
+      "price_rupees": 50,
+      "staging_dirs": [
+        "hot-and-spicy-korean-kimchi-noodles-geki"
+      ]
+    },
+    {
+      "sku": "QLS-0029",
+      "slug": "hot-and-sweet-tomato-chilli-sauce-maggi",
+      "name": "Maggi Hot and Sweet Tomato Chilli Sauce",
+      "price_rupees": 170,
+      "staging_dirs": [
+        "hot-and-sweet-tomato-chilli-sauce-maggi"
+      ]
+    },
+    {
+      "sku": "QLS-0030",
+      "slug": "indias-magic-masala-chips-lays",
+      "name": "Lay's India's Magic Masala Chips",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "indias-magic-masala-chips-lays",
+        "indias-magic-masala-chips-lays-2"
+      ]
+    },
+    {
+      "sku": "QLS-0031",
+      "slug": "jasmine-mist-air-freshener-odonil",
+      "name": "Odonil Jasmine Mist Air Freshener",
+      "price_rupees": 99,
+      "staging_dirs": [
+        "jasmine-mist-air-freshener-odonil"
+      ]
+    },
+    {
+      "sku": "QLS-0032",
+      "slug": "kitkat-chunky-white-nestle",
+      "name": "Nestle KitKat Chunky White",
+      "price_rupees": 70,
+      "staging_dirs": [
+        "kitkat-chunky-white-nestle"
+      ]
+    },
+    {
+      "sku": "QLS-0033",
+      "slug": "lactogen-pro-1-nestle",
+      "name": "Nestle Lactogen Pro 1",
+      "price_rupees": 420,
+      "staging_dirs": [
+        "lactogen-pro-1-nestle"
+      ]
+    },
+    {
+      "sku": "QLS-0034",
+      "slug": "lactogen-pro-4-nestle",
+      "name": "Nestle Lactogen Pro 4",
+      "price_rupees": 440,
+      "staging_dirs": [
+        "lactogen-pro-4-nestle"
+      ]
+    },
+    {
+      "sku": "QLS-0035",
+      "slug": "milkybar-white-chocolate-nestle",
+      "name": "Nestle Milkybar White Chocolate",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "milkybar-white-chocolate-nestle"
+      ]
+    },
+    {
+      "sku": "QLS-0036",
+      "slug": "multigrain-chocos-chhota-bheem-kelloggs",
+      "name": "Kellogg's Multigrain Chocos Chhota Bheem",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "multigrain-chocos-chhota-bheem-kelloggs"
+      ]
+    },
+    {
+      "sku": "QLS-0037",
+      "slug": "multigrain-chocos-kelloggs",
+      "name": "Kellogg's Multigrain Chocos",
+      "price_rupees": 210,
+      "staging_dirs": [
+        "multigrain-chocos-kelloggs"
+      ]
+    },
+    {
+      "sku": "QLS-0038",
+      "slug": "oats-quaker",
+      "name": "Quaker Oats",
+      "price_rupees": 195,
+      "staging_dirs": [
+        "oats-quaker"
+      ]
+    },
+    {
+      "sku": "QLS-0039",
+      "slug": "power-pocket-rose-fresh-blossom-godrej-aer",
+      "name": "Godrej Aer Power Pocket Rose Fresh Blossom",
+      "price_rupees": 65,
+      "staging_dirs": [
+        "power-pocket-rose-fresh-blossom-godrej-aer"
+      ]
+    },
+    {
+      "sku": "QLS-0040",
+      "slug": "puffcorn-yummy-cheese-kurkure-playz",
+      "name": "Kurkure Playz Puffcorn Yummy Cheese",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "puffcorn-yummy-cheese-kurkure-playz"
+      ]
+    },
+    {
+      "sku": "QLS-0041",
+      "slug": "refined-sunflower-oil-gold-winner",
+      "name": "Gold Winner Refined Sunflower Oil",
+      "price_rupees": 180,
+      "staging_dirs": [
+        "refined-sunflower-oil-gold-winner"
+      ]
+    },
+    {
+      "sku": "QLS-0042",
+      "slug": "rich-tomato-ketchup-maggi",
+      "name": "Maggi Rich Tomato Ketchup",
+      "price_rupees": 155,
+      "staging_dirs": [
+        "rich-tomato-ketchup-maggi"
+      ]
+    },
+    {
+      "sku": "QLS-0043",
+      "slug": "rolled-oats-disaano",
+      "name": "Disaano Rolled Oats",
+      "price_rupees": 199,
+      "staging_dirs": [
+        "rolled-oats-disaano"
+      ]
+    },
+    {
+      "sku": "QLS-0044",
+      "slug": "room-spray-odonil",
+      "name": "Odonil Room Spray",
+      "price_rupees": 179,
+      "staging_dirs": [
+        "room-spray-odonil"
+      ]
+    },
+    {
+      "sku": "QLS-0045",
+      "slug": "shampoo-hair-colour-godrej-selfie",
+      "name": "Godrej Selfie Shampoo Hair Colour",
+      "price_rupees": 30,
+      "staging_dirs": [
+        "shampoo-hair-colour-godrej-selfie"
+      ]
+    },
+    {
+      "sku": "QLS-0046",
+      "slug": "similac-classic-stage-1-abbott",
+      "name": "Abbott Similac Classic Stage 1",
+      "price_rupees": 430,
+      "staging_dirs": [
+        "similac-classic-stage-1-abbott"
+      ]
+    },
+    {
+      "sku": "QLS-0047",
+      "slug": "spanish-tomato-tango-chips-lays",
+      "name": "Lay's Spanish Tomato Tango Chips",
+      "price_rupees": 20,
+      "staging_dirs": [
+        "spanish-tomato-tango-chips-lays",
+        "spanish-tomato-tango-chips-lays-2"
+      ]
+    },
+    {
+      "sku": "QLS-0048",
+      "slug": "spicy-manchurian-cuppa-noodles-maggi",
+      "name": "Maggi Spicy Manchurian Cuppa Noodles",
+      "price_rupees": 50,
+      "staging_dirs": [
+        "spicy-manchurian-cuppa-noodles-maggi"
+      ]
+    },
+    {
+      "sku": "QLS-0049",
+      "slug": "super-muesli-zero-added-sugar-yoga-bar",
+      "name": "Yoga Bar Super Muesli Zero Added Sugar",
+      "price_rupees": 349,
+      "staging_dirs": [
+        "super-muesli-zero-added-sugar-yoga-bar"
+      ]
+    },
+    {
+      "sku": "QLS-0050",
+      "slug": "sweet-chilli-hot-sauce-veeba",
+      "name": "Veeba Sweet Chilli Hot Sauce",
+      "price_rupees": 149,
+      "staging_dirs": [
+        "sweet-chilli-hot-sauce-veeba"
+      ]
+    },
+    {
+      "sku": "QLS-0051",
+      "slug": "sweet-onion-sauce-veeba",
+      "name": "Veeba Sweet Onion Sauce",
+      "price_rupees": 149,
+      "staging_dirs": [
+        "sweet-onion-sauce-veeba"
+      ]
+    },
+    {
+      "sku": "QLS-0052",
+      "slug": "synthetic-vinegar-double-horse",
+      "name": "Double Horse Synthetic Vinegar",
+      "price_rupees": 55,
+      "staging_dirs": [
+        "synthetic-vinegar-double-horse"
+      ]
+    },
+    {
+      "sku": "QLS-0053",
+      "slug": "taj-mahal-tea-brooke-bond",
+      "name": "Brooke Bond Taj Mahal Tea",
+      "price_rupees": 260,
+      "staging_dirs": [
+        "taj-mahal-tea-brooke-bond"
+      ]
+    },
+    {
+      "sku": "QLS-0054",
+      "slug": "thermosteel-water-bottle-milton",
+      "name": "Milton Thermosteel Water Bottle",
+      "price_rupees": 899,
+      "staging_dirs": [
+        "thermosteel-water-bottle-milton"
+      ]
+    },
+    {
+      "sku": "QLS-0055",
+      "slug": "tomato-sauce-happy",
+      "name": "Happy Tomato Sauce",
+      "price_rupees": 110,
+      "staging_dirs": [
+        "tomato-sauce-happy"
+      ]
+    },
+    {
+      "sku": "QLS-0056",
+      "slug": "womens-plus-caramel-horlicks",
+      "name": "Horlicks Women's Plus Caramel",
+      "price_rupees": 320,
+      "staging_dirs": [
+        "womens-plus-caramel-horlicks",
+        "womens-plus-caramel-horlicks-2"
+      ]
+    }
+  ]
+}

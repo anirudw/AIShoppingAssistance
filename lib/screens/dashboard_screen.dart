@@ -116,9 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Future<void> _takePictureAndSearch() async {
-    if (_isSearchingImage) {
-      return;
-    }
+    if (_isSearchingImage) return;
 
     setState(() => _isSearchingImage = true);
 
@@ -244,7 +242,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       appBar: _buildAppBar(),
       body: Stack(
         children: [
-          // Main Layout Column
           Column(
             children: [
               _buildCameraViewport(),
@@ -253,8 +250,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               ),
             ],
           ),
-          
-          // Floating Bottom Navigation Bar
           Positioned(
             bottom: 20,
             left: MediaQuery.of(context).size.width * 0.05,
@@ -279,17 +274,16 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
             ],
-            border: Border.all(color: Colors.black.withOpacity(0.04)),
+            border: Border.all(color: Colors.black.withValues(alpha: 0.04)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Profile
               Container(
                 width: 44,
                 height: 44,
@@ -298,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -311,8 +305,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                 ),
               ),
-              
-              // Status Pill
               GestureDetector(
                 onTap: _checkDbStatus,
                 child: Container(
@@ -320,7 +312,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   decoration: BoxDecoration(
                     color: const Color(0xFFF9FAFB),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.black.withOpacity(0.04)),
+                    border: Border.all(color: Colors.black.withValues(alpha: 0.04)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -333,7 +325,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             height: 8,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFF22C55E).withOpacity(0.3 + 0.7 * _pulseController.value),
+                              color: const Color(0xFF22C55E).withValues(alpha: 0.3 + 0.7 * _pulseController.value),
                             ),
                           );
                         },
@@ -348,7 +340,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Container(width: 1, height: 12, color: Colors.black.withOpacity(0.08)),
+                      Container(width: 1, height: 12, color: Colors.black.withValues(alpha: 0.08)),
                       const SizedBox(width: 6),
                       const Text(
                         'Live',
@@ -362,15 +354,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                 ),
               ),
-              
-              // Notification Bell
               Container(
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
-                  border: Border.all(color: Colors.black.withOpacity(0.04)),
+                  border: Border.all(color: Colors.black.withValues(alpha: 0.04)),
                 ),
                 child: Stack(
                   alignment: Alignment.center,
@@ -412,8 +402,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           color: const Color(0xFF1A1A1A),
           child: Stack(
             children: [
-              // Background Camera Feed
-              // Background Camera Feed
+              // FIXED: Correct portrait aspect ratio cropping using FittedBox + AspectRatio
               if (_isCameraInitialized && _cameraController != null)
                 Positioned.fill(
                   child: AnimatedScale(
@@ -423,9 +412,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     child: FittedBox(
                       fit: BoxFit.cover,
                       child: SizedBox(
-                        width: _cameraController!.value.previewSize?.width ?? 1,
-                        height: _cameraController!.value.previewSize?.height ?? 1,
-                        child: CameraPreview(_cameraController!),
+                        width: MediaQuery.of(context).size.width,
+                        child: AspectRatio(
+                          // Invert landscape aspect ratio constraints for seamless portrait preview paths
+                          aspectRatio: 1 / _cameraController!.value.aspectRatio,
+                          child: CameraPreview(_cameraController!),
+                        ),
                       ),
                     ),
                   ),
@@ -440,7 +432,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                 ),
               
-              // Scanning Reticle Overlay (Rounded Cutout Corners)
+              // Scanning Reticle Overlay
               Center(
                 child: SizedBox(
                   width: 180.0,
@@ -460,7 +452,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   Colors.transparent,
-                                  const Color(0xFF23C8D9).withOpacity(0.2),
+                                  const Color(0xFF23C8D9).withValues(alpha: 0.2),
                                   Colors.transparent,
                                 ],
                               ),
@@ -471,7 +463,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
               ),
 
-              // Zoom Level HUD Overlay (Glassmorphic center badge)
+              // Zoom Level HUD Overlay
               Center(
                 child: IgnorePointer(
                   child: AnimatedOpacity(
@@ -481,10 +473,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
+                        color: Colors.black.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -520,7 +512,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         height: 32,
                         margin: EdgeInsets.only(right: _showZoomSlider ? 8 : 0),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         clipBehavior: Clip.antiAlias,
@@ -605,11 +597,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             shape: BoxShape.circle,
                             color: _showZoomSlider 
                                 ? const Color(0xFF23C8D9) 
-                                : Colors.black.withOpacity(0.6),
+                                : Colors.black.withValues(alpha: 0.6),
                             boxShadow: _showZoomSlider 
                                 ? [
                                     BoxShadow(
-                                      color: const Color(0xFF23C8D9).withOpacity(0.4),
+                                      color: const Color(0xFF23C8D9).withValues(alpha: 0.4),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     )
@@ -634,8 +626,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-
-
   Widget _buildShoppingZone() {
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -650,7 +640,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header (Fixed)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -679,7 +668,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF23C8D9).withOpacity(0.08),
+                      color: const Color(0xFF23C8D9).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -696,8 +685,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ],
           ),
           const SizedBox(height: 16),
-
-          // Scrollable Cart Contents
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 120),
@@ -715,7 +702,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             height: 72,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFF23C8D9).withOpacity(0.05),
+                              color: const Color(0xFF23C8D9).withValues(alpha: 0.05),
                             ),
                             child: const Icon(
                               Icons.shopping_cart_outlined,
@@ -784,143 +771,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       },
                     ),
                   ],
-
-                  // Hide Chef AI assistant for now
-                  // _buildAssistantSection(),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssistantSection() {
-    return Container(
-      margin: const EdgeInsets.only(top: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.black.withOpacity(0.04)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF23C8D9).withOpacity(0.08),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Color(0xFF23C8D9),
-                  size: 16,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ask Chef AI',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Get instant answers about recipes, ingredients and more.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildAssistantBar(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssistantBar() {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.black.withOpacity(0.04)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF23C8D9), Color(0xFF0EAFC4)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: const Icon(Icons.psychology, color: Colors.white, size: 14),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: _ragController,
-              style: const TextStyle(color: Color(0xFF111827), fontSize: 13),
-              decoration: const InputDecoration(
-                hintText: "Ask Chef AI...",
-                hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-              ),
-              onSubmitted: (_) => _askChefRag(),
-            ),
-          ),
-          if (_isLoadingRag)
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF23C8D9)),
-            )
-          else
-            GestureDetector(
-              onTap: _askChefRag,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF23C8D9),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_upward, color: Colors.white, size: 14),
-              ),
-            ),
         ],
       ),
     );
@@ -934,12 +788,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         child: Container(
           height: 82,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
+            color: Colors.white.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(40),
-            border: Border.all(color: Colors.white.withOpacity(0.4)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -949,7 +803,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Chat Tab
               Expanded(
                 child: InkWell(
                   onTap: () {},
@@ -970,11 +823,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                 ),
               ),
-              
-              // Center Shutter Button (74x74, white ring, slight elevation, scale animation on press)
               _buildShutterButton(),
-              
-              // Voice Tab
               Expanded(
                 child: InkWell(
                   onTap: () {},
@@ -1032,7 +881,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             border: Border.all(color: Colors.white, width: 4),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF23C8D9).withOpacity(0.3),
+                color: const Color(0xFF23C8D9).withValues(alpha: 0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -1086,7 +935,6 @@ class ReticlePainter extends CustomPainter {
     final double r = borderRadius;
     final double len = arcLength;
 
-    // Top-Left
     final pathTL = Path()
       ..moveTo(0, r + len)
       ..lineTo(0, r)
@@ -1094,7 +942,6 @@ class ReticlePainter extends CustomPainter {
       ..lineTo(r + len, 0);
     canvas.drawPath(pathTL, paint);
 
-    // Top-Right
     final pathTR = Path()
       ..moveTo(w - (r + len), 0)
       ..lineTo(w - r, 0)
@@ -1102,7 +949,6 @@ class ReticlePainter extends CustomPainter {
       ..lineTo(w, r + len);
     canvas.drawPath(pathTR, paint);
 
-    // Bottom-Right
     final pathBR = Path()
       ..moveTo(w, h - (r + len))
       ..lineTo(w, h - r)
@@ -1110,7 +956,6 @@ class ReticlePainter extends CustomPainter {
       ..lineTo(w - (r + len), h);
     canvas.drawPath(pathBR, paint);
 
-    // Bottom-Left
     final pathBL = Path()
       ..moveTo(r + len, h)
       ..lineTo(r, h)
