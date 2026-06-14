@@ -9,6 +9,7 @@ import '../models/cart_item_model.dart';
 import '../services/chromadb_client.dart';
 import '../services/cart_service.dart';
 import '../services/inventory_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -616,6 +617,112 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
+  void _showProfileSheet() {
+    final user = Supabase.instance.client.auth.currentUser;
+    final email = user?.email ?? 'Guest';
+    final initial = email.isNotEmpty ? email[0].toUpperCase() : 'U';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              CircleAvatar(
+                radius: 36,
+                backgroundColor: const Color(0xFF23C8D9).withValues(alpha: 0.1),
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    fontFamily: 'ClashDisplay',
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF23C8D9),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Signed in as',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF6B7280),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                email,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await Supabase.instance.client.auth.signOut();
+                  },
+                  icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
+                  label: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFEF4444),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Color(0xFF6B7280),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   PreferredSizeWidget _buildAppBar() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(72),
@@ -639,24 +746,35 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1A1A1A).withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              GestureDetector(
+                onTap: _showProfileSheet,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF23C8D9).withValues(alpha: 0.1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1A1A1A).withValues(alpha: 0.06),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      (() {
+                        final email = Supabase.instance.client.auth.currentUser?.email ?? 'U';
+                        return email.isNotEmpty ? email[0].toUpperCase() : 'U';
+                      })(),
+                      style: const TextStyle(
+                        fontFamily: 'ClashDisplay',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF23C8D9),
+                      ),
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuD5kgloqF28sbeXcgXIox5_oyy81AA-sTPCmh4snzeCupftRWc_HIZQE5F_Cf_GiPa_KPC94tVUKN9tyTFZeCixqOx4-o0cLR9NMhZxawHQQk2gzGeztGgi5A8ID_-Oxuuuo8g7l8oHwdf1TQaawC5PRuG-y4RPR534sjtZpqN2YRR8tEBCR246KSvsrsUvz2KeUcjurNrlWpw_WNbPQ2bz6xwT_SL-Sdb_ZXTv-q-7lFAEe5HhID0111iWfukZnSFMbjHVKjr9",
-                    fit: BoxFit.cover,
                   ),
                 ),
               ),
